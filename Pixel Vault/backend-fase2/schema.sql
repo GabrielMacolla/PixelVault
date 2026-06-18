@@ -1,5 +1,5 @@
 -- =====================================================================
--- Pixel Vault — FASE 2 — Criacao do banco de dados
+-- Pixel Vault — Criacao do banco de dados
 -- SGBD escolhido: MySQL 8.
 -- Justificativa: e gratuito, leve, com integracao trivial ao Spring Boot,
 -- amplamente usado no mercado e em disciplinas de faculdade, e o
@@ -94,6 +94,3 @@ CREATE TABLE item_pedido (
   CONSTRAINT fk_item_jogo   FOREIGN KEY (jogo_id)   REFERENCES jogo(id),
   CONSTRAINT fk_item_bundle FOREIGN KEY (bundle_id) REFERENCES bundle(id)
 );
-
--- NOTA (PostgreSQL): troque AUTO_INCREMENT por SERIAL/BIGSERIAL e remova
--- o bloco CHARACTER SET; o restante e praticamente identico.

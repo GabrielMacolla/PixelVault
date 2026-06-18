@@ -3,17 +3,12 @@ package com.pixelvault.model;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 
-/**
- * Entidade JPA que mapeia a tabela "jogo".
- * Cada anotacao diz ao Hibernate como transformar este objeto Java
- * em linhas/colunas do banco (Object-Relational Mapping).
- */
 @Entity
 @Table(name = "jogo")
 public class Jogo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // = AUTO_INCREMENT do MySQL
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false, length = 150)
@@ -24,38 +19,39 @@ public class Jogo {
 
     private Integer ano;
 
-    @Column(nullable = false)
-    private BigDecimal preco; // BigDecimal para dinheiro (nunca double!)
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal preco;
 
-    @Column(name = "preco_promocional")
-    private BigDecimal precoPromocional; // null = sem promocao
+    @Column(name = "preco_promocional", precision = 10, scale = 2)
+    private BigDecimal precoPromocional;
 
     @Column(name = "capa_cor", length = 7)
     private String capaCor;
 
-    // Muitos jogos pertencem a um genero (lado "dono" da FK).
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "genero_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "genero_id", nullable = false)
     private Genero genero;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "plataforma_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "plataforma_id", nullable = false)
     private Plataforma plataforma;
 
-    // Construtor vazio exigido pelo JPA
-    public Jogo() {}
-
-    // Getters e setters (encurtados aqui; gere com a IDE: Alt+Insert)
     public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
+    public Integer getAno() { return ano; }
+    public void setAno(Integer ano) { this.ano = ano; }
     public BigDecimal getPreco() { return preco; }
     public void setPreco(BigDecimal preco) { this.preco = preco; }
     public BigDecimal getPrecoPromocional() { return precoPromocional; }
-    public void setPrecoPromocional(BigDecimal p) { this.precoPromocional = p; }
+    public void setPrecoPromocional(BigDecimal precoPromocional) { this.precoPromocional = precoPromocional; }
+    public String getCapaCor() { return capaCor; }
+    public void setCapaCor(String capaCor) { this.capaCor = capaCor; }
     public Genero getGenero() { return genero; }
     public void setGenero(Genero genero) { this.genero = genero; }
     public Plataforma getPlataforma() { return plataforma; }
     public void setPlataforma(Plataforma plataforma) { this.plataforma = plataforma; }
-    // ... demais getters/setters
 }

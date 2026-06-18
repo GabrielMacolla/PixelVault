@@ -181,10 +181,10 @@ function finalizarCompra() {
 }
 
 /* ============================ LOGIN ============================ */
-function tratarLogin(e) {
+async function tratarLogin(e) {
   e.preventDefault();
   const dados = Object.fromEntries(new FormData(e.target));
-  const r = Auth.login(dados.email.trim(), dados.senha);
+  const r = await Auth.login(dados.email.trim(), dados.senha);
   const erro = document.getElementById("erroLogin");
   if (!r.ok) { erro.textContent = r.erro; return; }
   erro.textContent = "";
@@ -195,7 +195,7 @@ function tratarLogin(e) {
 }
 
 /* ============================ REGISTRO ============================ */
-function tratarRegistro(e) {
+async function tratarRegistro(e) {
   e.preventDefault();
   const form = e.target;
   const dados = Object.fromEntries(new FormData(form));
@@ -222,7 +222,7 @@ function tratarRegistro(e) {
   if (temErro) return;
 
   // Tudo valido: registra (Auth ainda pode recusar por duplicidade)
-  const r = Auth.registrar({
+  const r = await Auth.registrar({
     nome: dados.nome.trim(),
     email: dados.email.trim(),
     cpf: dados.cpf,
@@ -235,7 +235,7 @@ function tratarRegistro(e) {
   }
 
   // Loga automaticamente apos cadastrar
-  Auth.login(dados.email.trim(), dados.senha);
+  await Auth.login(dados.email.trim(), dados.senha);
   form.reset();
   fecharTodosModais();
   atualizarAreaUsuario();

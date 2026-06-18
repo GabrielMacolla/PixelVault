@@ -1,5 +1,5 @@
 -- =====================================================================
--- Pixel Vault — FASE 2 — Carga inicial (SEED)
+-- Pixel Vault — Carga inicial (SEED)
 -- Mantem o mesmo minimo do front-end: >= 5 itens por genero,
 -- >= 5 por plataforma, >= 5 em promocao e 5 bundles.
 -- No Spring Boot, basta colocar este arquivo em src/main/resources/data.sql

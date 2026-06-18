@@ -1,52 +1,49 @@
 /* =====================================================================
-   auth.js — autenticacao SIMULADA (apenas POC)
-   Usuarios ficam no localStorage. NUNCA faca isso em producao:
-   senhas seriam enviadas a um back-end e guardadas com hash (ex.: BCrypt).
-
-   FASE 2: substituir registrar()/login() por chamadas a API:
-       POST /api/usuarios        (cadastro)
-       POST /api/auth/login      (retorna um token JWT)
+   auth.js — autenticacao via API REST (Fase 2)
+   Cadastro e login agora chamam o back-end Java.
+   A sessao do usuario logado ainda fica no localStorage.
    ===================================================================== */
 
+const API_URL = "http://localhost:8080";
+
 const Auth = {
-  CHAVE_USUARIOS: "pv_usuarios",
   CHAVE_SESSAO: "pv_sessao",
 
-  _lerUsuarios() {
-    return JSON.parse(localStorage.getItem(this.CHAVE_USUARIOS) || "[]");
-  },
-  _salvarUsuarios(lista) {
-    localStorage.setItem(this.CHAVE_USUARIOS, JSON.stringify(lista));
+  async registrar(dados) {
+    try {
+      const resp = await fetch(API_URL + "/api/usuarios", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados),
+      });
+      const json = await resp.json();
+      if (!resp.ok) return { ok: false, erro: json.erro };
+      return { ok: true };
+    } catch (erro) {
+      return { ok: false, erro: "Erro ao conectar com o servidor." };
+    }
   },
 
-  /* Registra um usuario ja validado. Retorna {ok, erro}. */
-  registrar(dados) {
-    const usuarios = this._lerUsuarios();
-    if (usuarios.some((u) => u.email === dados.email)) {
-      return { ok: false, erro: "Ja existe uma conta com este e-mail." };
+  async login(email, senha) {
+    try {
+      const resp = await fetch(API_URL + "/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, senha }),
+      });
+      const json = await resp.json();
+      if (!resp.ok) return { ok: false, erro: json.erro };
+      localStorage.setItem(this.CHAVE_SESSAO, JSON.stringify({ nome: json.nome, email: json.email }));
+      return { ok: true };
+    } catch (erro) {
+      return { ok: false, erro: "Erro ao conectar com o servidor." };
     }
-    if (usuarios.some((u) => u.cpf === dados.cpf)) {
-      return { ok: false, erro: "Ja existe uma conta com este CPF." };
-    }
-    usuarios.push(dados);
-    this._salvarUsuarios(usuarios);
-    return { ok: true };
-  },
-
-  /* Faz login. Retorna {ok, erro}. */
-  login(email, senha) {
-    const usuarios = this._lerUsuarios();
-    const u = usuarios.find((x) => x.email === email && x.senha === senha);
-    if (!u) return { ok: false, erro: "E-mail ou senha incorretos." };
-    localStorage.setItem(this.CHAVE_SESSAO, JSON.stringify({ nome: u.nome, email: u.email }));
-    return { ok: true };
   },
 
   logout() {
     localStorage.removeItem(this.CHAVE_SESSAO);
   },
 
-  /* Retorna o usuario logado ou null. */
   usuarioAtual() {
     return JSON.parse(localStorage.getItem(this.CHAVE_SESSAO) || "null");
   },
