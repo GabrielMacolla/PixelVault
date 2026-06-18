@@ -1,4 +1,8 @@
 package com.pixelvault.config;
 
-// Spring Security foi removido para simplificar o projeto.
-// CORS ja esta configurado com @CrossOrigin nos controllers.
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class SecurityConfig {
+    // Spring Security removido. CORS configurado com @CrossOrigin nos controllers.
+}

@@ -17,6 +17,7 @@ public class ProdutoDTO {
     private boolean promocao;
     private String capaCor;
     private List<Long> itens;
+    private Integer estoque;
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -42,4 +43,6 @@ public class ProdutoDTO {
     public void setCapaCor(String capaCor) { this.capaCor = capaCor; }
     public List<Long> getItens() { return itens; }
     public void setItens(List<Long> itens) { this.itens = itens; }
+    public Integer getEstoque() { return estoque; }
+    public void setEstoque(Integer estoque) { this.estoque = estoque; }
 }

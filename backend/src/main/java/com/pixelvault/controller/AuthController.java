@@ -65,12 +65,17 @@ public class AuthController {
         Usuario novoUsuario = new Usuario();
         novoUsuario.setNome(request.getNome());
         novoUsuario.setEmail(request.getEmail());
-        novoUsuario.setCpf(request.getCpf());
+        novoUsuario.setCpf(request.getCpf().replaceAll("[^0-9]", ""));
         novoUsuario.setTelefone(request.getTelefone());
         novoUsuario.setSenha(request.getSenha());
         novoUsuario.setCriadoEm(LocalDateTime.now());
 
-        usuarioRepository.save(novoUsuario);
+        try {
+            usuarioRepository.save(novoUsuario);
+        } catch (Exception e) {
+            resposta.put("erro", "Erro ao salvar usuario: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(resposta);
+        }
 
         resposta.put("ok", true);
         return ResponseEntity.status(HttpStatus.CREATED).body(resposta);

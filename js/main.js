@@ -152,12 +152,11 @@ function renderizarCarrinho() {
 }
 
 /* ============================ CHECKOUT ============================ */
-function finalizarCompra() {
+async function finalizarCompra() {
   if (Carrinho.itens.length === 0) {
     mostrarToast("Adicione itens antes de finalizar.");
     return;
   }
-  // Regra de negocio: precisa estar logado para comprar.
   if (!Auth.estaLogado()) {
     fecharTodosModais();
     mostrarToast("Faca login para finalizar a compra.");
@@ -165,19 +164,59 @@ function finalizarCompra() {
     return;
   }
 
-  // Monta o resumo do pedido (simulacao — nenhum pagamento real).
-  const resumo = document.getElementById("resumoPedido");
-  const linhas = Carrinho.itens.map((i) => {
+  // Monta o corpo do pedido para a API
+  const itensPedido = Carrinho.itens.map((i) => {
     const p = Dados.porId(i.id);
-    return `<div>${i.qtd}x ${p.nome} — ${Catalogo._formatarPreco(Carrinho.precoDe(p) * i.qtd)}</div>`;
+    return {
+      jogoId:       p.tipo === "jogo"   ? p.id : null,
+      bundleId:     p.tipo === "bundle" ? p.id : null,
+      quantidade:   i.qtd,
+      precoUnitario: Carrinho.precoDe(p),
+    };
   });
-  resumo.innerHTML = linhas.join("") +
-    `<hr /><strong>Total: ${Catalogo._formatarPreco(Carrinho.total())}</strong>`;
 
-  Carrinho.limpar();
-  atualizarBadgeCarrinho();
-  fecharTodosModais();
-  abrirModal("modalConfirmacao");
+  const corpo = {
+    emailUsuario: Auth.usuarioAtual().email,
+    itens: itensPedido,
+    total: Carrinho.total(),
+  };
+
+  try {
+    const resp = await fetch(API_URL + "/api/pedidos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(corpo),
+    });
+
+    const json = await resp.json();
+
+    if (!resp.ok) {
+      mostrarToast(json.erro || "Erro ao finalizar compra.");
+      return;
+    }
+
+    // Monta o resumo visual
+    const resumo = document.getElementById("resumoPedido");
+    const linhas = Carrinho.itens.map((i) => {
+      const p = Dados.porId(i.id);
+      return `<div>${i.qtd}x ${p.nome} — ${Catalogo._formatarPreco(Carrinho.precoDe(p) * i.qtd)}</div>`;
+    });
+    resumo.innerHTML = linhas.join("") +
+      `<hr /><strong>Total: ${Catalogo._formatarPreco(Carrinho.total())}</strong>`;
+
+    // Limpa o carrinho e mostra confirmacao
+    Carrinho.limpar();
+    atualizarBadgeCarrinho();
+    fecharTodosModais();
+    abrirModal("modalConfirmacao");
+
+    // Recarrega o catalogo para refletir o novo estoque
+    await Dados.carregarProdutos();
+    Catalogo.renderizar();
+
+  } catch (e) {
+    mostrarToast("Erro ao conectar com o servidor.");
+  }
 }
 
 /* ============================ LOGIN ============================ */
@@ -225,7 +264,7 @@ async function tratarRegistro(e) {
   const r = await Auth.registrar({
     nome: dados.nome.trim(),
     email: dados.email.trim(),
-    cpf: dados.cpf,
+    cpf: dados.cpf.replace(/[^0-9]/g, ""),
     telefone: dados.telefone,
     senha: dados.senha,
   });

@@ -27,6 +27,9 @@ public class Bundle {
     @Column(name = "capa_cor", length = 7)
     private String capaCor;
 
+    @Column(columnDefinition = "INT DEFAULT 5")
+    private Integer estoque = 5;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "bundle_jogo",
@@ -49,4 +52,6 @@ public class Bundle {
     public void setCapaCor(String capaCor) { this.capaCor = capaCor; }
     public List<Jogo> getJogos() { return jogos; }
     public void setJogos(List<Jogo> jogos) { this.jogos = jogos; }
+    public Integer getEstoque() { return estoque; }
+    public void setEstoque(Integer estoque) { this.estoque = estoque; }
 }

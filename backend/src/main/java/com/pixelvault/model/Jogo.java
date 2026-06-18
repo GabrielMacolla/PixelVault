@@ -28,6 +28,9 @@ public class Jogo {
     @Column(name = "capa_cor", length = 7)
     private String capaCor;
 
+    @Column(columnDefinition = "INT DEFAULT 10")
+    private Integer estoque = 10;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "genero_id", nullable = false)
     private Genero genero;
@@ -54,4 +57,6 @@ public class Jogo {
     public void setGenero(Genero genero) { this.genero = genero; }
     public Plataforma getPlataforma() { return plataforma; }
     public void setPlataforma(Plataforma plataforma) { this.plataforma = plataforma; }
+    public Integer getEstoque() { return estoque; }
+    public void setEstoque(Integer estoque) { this.estoque = estoque; }
 }

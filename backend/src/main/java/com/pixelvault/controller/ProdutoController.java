@@ -44,6 +44,7 @@ public class ProdutoController {
             dto.setPrecoPromocional(jogo.getPrecoPromocional());
             dto.setPromocao(jogo.getPrecoPromocional() != null);
             dto.setCapaCor(jogo.getCapaCor());
+            dto.setEstoque(jogo.getEstoque() != null ? jogo.getEstoque() : 10);
             produtos.add(dto);
         }
 
@@ -59,6 +60,7 @@ public class ProdutoController {
             dto.setPrecoPromocional(bundle.getPrecoPromocional());
             dto.setPromocao(bundle.getPrecoPromocional() != null);
             dto.setCapaCor(bundle.getCapaCor());
+            dto.setEstoque(bundle.getEstoque() != null ? bundle.getEstoque() : 5);
 
             // Percorre os jogos do bundle para pegar a plataforma, o ano mais recente e os IDs
             List<Jogo> jogos = bundle.getJogos();

@@ -4,8 +4,6 @@
    A sessao do usuario logado ainda fica no localStorage.
    ===================================================================== */
 
-const API_URL = "http://localhost:8080";
-
 const Auth = {
   CHAVE_SESSAO: "pv_sessao",
 

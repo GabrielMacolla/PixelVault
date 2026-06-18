@@ -62,7 +62,13 @@ const Catalogo = {
     if (p.tipo === "bundle") tags.push(`<span class="tag tag--bundle">BUNDLE</span>`);
     tags.push(`<span class="tag">${p.plataforma}</span>`);
 
-    // Iniciais para a "capa" placeholder
+    const semEstoque = p.estoque !== undefined && p.estoque <= 0;
+    const estoqueAviso = p.estoque !== undefined && p.estoque > 0 && p.estoque <= 3
+      ? `<p class="card__estoque card__estoque--alerta">⚠️ Últimas ${p.estoque} unidades!</p>`
+      : p.estoque !== undefined && p.estoque > 0
+        ? `<p class="card__estoque">${p.estoque} em estoque</p>`
+        : "";
+
     const iniciais = p.nome.split(/\s+/).slice(0, 2).map((x) => x[0]).join("").toUpperCase();
 
     card.innerHTML = `
@@ -73,13 +79,17 @@ const Catalogo = {
         <p class="card__desc">${p.descricao}</p>
         <div class="card__tags">${tags.join("")}</div>
         <div class="card__preco">${preco}</div>
-        <button class="btn btn--pixel btn--bloco btn-add" data-id="${p.id}">Adicionar 🛒</button>
+        ${estoqueAviso}
+        <button class="btn btn--pixel btn--bloco btn-add" data-id="${p.id}" ${semEstoque ? "disabled" : ""}>
+          ${semEstoque ? "Esgotado ❌" : "Adicionar 🛒"}
+        </button>
       </div>`;
 
-    // Listener do botao "Adicionar" (definido em main.js via aoAdicionar).
-    card.querySelector(".btn-add").addEventListener("click", () => {
-      Catalogo.aoAdicionar(p.id);
-    });
+    if (!semEstoque) {
+      card.querySelector(".btn-add").addEventListener("click", () => {
+        Catalogo.aoAdicionar(p.id);
+      });
+    }
 
     return card;
   },

@@ -30,13 +30,47 @@ public class PedidoController {
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> criar(@RequestBody PedidoRequest request) {
+        Map<String, Object> resposta = new HashMap<>();
+
+        // Verifica se o usuario existe
         Optional<Usuario> optUsuario = usuarioRepository.findByEmail(request.getEmailUsuario());
         if (optUsuario.isEmpty()) {
-            Map<String, Object> erro = new LinkedHashMap<>();
-            erro.put("erro", "Usuario nao encontrado.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(erro);
+            resposta.put("erro", "Usuario nao encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
         }
 
+        // 1. Verifica estoque de todos os itens antes de confirmar
+        for (PedidoRequest.ItemRequest itemReq : request.getItens()) {
+            if (itemReq.getJogoId() != null) {
+                Optional<Jogo> optJogo = jogoRepository.findById(itemReq.getJogoId());
+                if (optJogo.isEmpty()) {
+                    resposta.put("erro", "Jogo nao encontrado: ID " + itemReq.getJogoId());
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
+                }
+                Jogo jogo = optJogo.get();
+                int estoqueAtual = jogo.getEstoque() != null ? jogo.getEstoque() : 0;
+                if (estoqueAtual < itemReq.getQuantidade()) {
+                    resposta.put("erro", "Estoque insuficiente para: " + jogo.getNome()
+                        + " (disponivel: " + estoqueAtual + ")");
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(resposta);
+                }
+            } else if (itemReq.getBundleId() != null) {
+                Optional<Bundle> optBundle = bundleRepository.findById(itemReq.getBundleId());
+                if (optBundle.isEmpty()) {
+                    resposta.put("erro", "Bundle nao encontrado: ID " + itemReq.getBundleId());
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
+                }
+                Bundle bundle = optBundle.get();
+                int estoqueAtual = bundle.getEstoque() != null ? bundle.getEstoque() : 0;
+                if (estoqueAtual < itemReq.getQuantidade()) {
+                    resposta.put("erro", "Estoque insuficiente para: " + bundle.getNome()
+                        + " (disponivel: " + estoqueAtual + ")");
+                    return ResponseEntity.status(HttpStatus.CONFLICT).body(resposta);
+                }
+            }
+        }
+
+        // 2. Cria o pedido e decrementa o estoque
         Pedido pedido = new Pedido();
         pedido.setUsuario(optUsuario.get());
         pedido.setDataHora(LocalDateTime.now());
@@ -50,9 +84,15 @@ public class PedidoController {
             item.setPrecoUnitario(itemReq.getPrecoUnitario());
 
             if (itemReq.getJogoId() != null) {
-                jogoRepository.findById(itemReq.getJogoId()).ifPresent(item::setJogo);
+                Jogo jogo = jogoRepository.findById(itemReq.getJogoId()).get();
+                jogo.setEstoque(jogo.getEstoque() - itemReq.getQuantidade());
+                jogoRepository.save(jogo);
+                item.setJogo(jogo);
             } else if (itemReq.getBundleId() != null) {
-                bundleRepository.findById(itemReq.getBundleId()).ifPresent(item::setBundle);
+                Bundle bundle = bundleRepository.findById(itemReq.getBundleId()).get();
+                bundle.setEstoque(bundle.getEstoque() - itemReq.getQuantidade());
+                bundleRepository.save(bundle);
+                item.setBundle(bundle);
             }
 
             itens.add(item);
@@ -61,8 +101,7 @@ public class PedidoController {
         pedido.setItens(itens);
         Pedido salvo = pedidoRepository.save(pedido);
 
-        Map<String, Object> response = new LinkedHashMap<>();
-        response.put("id", salvo.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        resposta.put("id", salvo.getId());
+        return ResponseEntity.status(HttpStatus.CREATED).body(resposta);
     }
 }
