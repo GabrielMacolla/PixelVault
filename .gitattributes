@@ -1,0 +1,8 @@
+# Normaliza quebras de linha: o repositorio guarda em LF.
+* text=auto eol=lf
+
+# Arquivos binarios (caso adicione imagens depois) nao sao alterados.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary

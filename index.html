@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-tema="escuro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pixel Vault — Loja de Jogos Retro</title>
+
+  <!-- Fonte pixelada (precisa de internet; ha fallback monospace no CSS) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- ======================= CABECALHO ======================= -->
+  <header class="cabecalho">
+    <div class="container cabecalho__interno">
+      <h1 class="logo" id="btnHome">PIXEL<span>VAULT</span></h1>
+
+      <!-- Busca por nome (filtro em tempo real) -->
+      <div class="busca">
+        <input type="search" id="campoBusca" placeholder="Buscar jogo pelo nome..." autocomplete="off" />
+      </div>
+
+      <div class="cabecalho__acoes">
+        <!-- Alternancia de tema claro/escuro -->
+        <button class="btn-icone" id="btnTema" title="Alternar tema" aria-label="Alternar tema">🌙</button>
+
+        <!-- Carrinho -->
+        <button class="btn-icone" id="btnCarrinho" title="Carrinho" aria-label="Carrinho">
+          🛒 <span class="badge" id="badgeCarrinho">0</span>
+        </button>
+
+        <!-- Area do usuario -->
+        <button class="btn btn--pixel" id="btnLogin">Entrar</button>
+        <div class="usuario-logado oculto" id="usuarioLogado">
+          <span id="nomeUsuario"></span>
+          <button class="btn btn--mini" id="btnLogout">Sair</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Abas de navegacao por categoria -->
+    <nav class="abas container" id="abas">
+      <button class="aba ativa" data-filtro="todos">Todos</button>
+      <button class="aba" data-filtro="promocoes">🔥 Promocoes</button>
+      <button class="aba" data-filtro="bundles">📦 Bundles</button>
+      <button class="aba" data-grupo="genero" data-filtro="Acao">Acao</button>
+      <button class="aba" data-grupo="genero" data-filtro="RPG">RPG</button>
+      <button class="aba" data-grupo="genero" data-filtro="Plataforma">Plataforma</button>
+      <button class="aba" data-grupo="genero" data-filtro="Luta">Luta</button>
+      <button class="aba" data-grupo="genero" data-filtro="Corrida">Corrida</button>
+    </nav>
+
+    <!-- Filtro secundario por console/plataforma -->
+    <nav class="abas abas--secundaria container" id="abasPlataforma">
+      <span class="abas__rotulo">Console:</span>
+      <button class="aba aba--mini ativa" data-grupo="plataforma" data-filtro="todas">Todos</button>
+      <button class="aba aba--mini" data-grupo="plataforma" data-filtro="SNES">SNES</button>
+      <button class="aba aba--mini" data-grupo="plataforma" data-filtro="Mega Drive">Mega Drive</button>
+      <button class="aba aba--mini" data-grupo="plataforma" data-filtro="PlayStation">PlayStation</button>
+      <button class="aba aba--mini" data-grupo="plataforma" data-filtro="Nintendo Switch">Switch</button>
+      <button class="aba aba--mini" data-grupo="plataforma" data-filtro="PC">PC</button>
+    </nav>
+  </header>
+
+  <!-- ======================= CATALOGO ======================= -->
+  <main class="container">
+    <p class="resultado-info" id="resultadoInfo"></p>
+    <section class="grade" id="grade"><!-- cards renderizados via JS --></section>
+  </main>
+
+  <!-- ======================= MODAL: CARRINHO ======================= -->
+  <div class="modal oculto" id="modalCarrinho">
+    <div class="modal__caixa">
+      <button class="modal__fechar" data-fechar>✕</button>
+      <h2>🛒 Seu Carrinho</h2>
+      <div id="listaCarrinho" class="carrinho-lista"></div>
+      <div class="carrinho-total">
+        <span>Total:</span>
+        <strong id="totalCarrinho">R$ 0,00</strong>
+      </div>
+      <button class="btn btn--pixel btn--bloco" id="btnFinalizar">Finalizar Compra</button>
+    </div>
+  </div>
+
+  <!-- ======================= MODAL: LOGIN ======================= -->
+  <div class="modal oculto" id="modalLogin">
+    <div class="modal__caixa">
+      <button class="modal__fechar" data-fechar>✕</button>
+      <h2>Entrar</h2>
+      <form id="formLogin" novalidate>
+        <label>E-mail
+          <input type="email" name="email" required />
+        </label>
+        <label>Senha
+          <input type="password" name="senha" required />
+        </label>
+        <p class="form-erro" id="erroLogin"></p>
+        <button class="btn btn--pixel btn--bloco" type="submit">Entrar</button>
+      </form>
+      <p class="form-troca">Nao tem conta? <a href="#" id="irParaRegistro">Cadastre-se</a></p>
+    </div>
+  </div>
+
+  <!-- ======================= MODAL: REGISTRO ======================= -->
+  <div class="modal oculto" id="modalRegistro">
+    <div class="modal__caixa">
+      <button class="modal__fechar" data-fechar>✕</button>
+      <h2>Criar Conta</h2>
+      <!-- novalidate: a validacao e feita por JS (validation.js) para mensagens didaticas -->
+      <form id="formRegistro" novalidate>
+        <label>Nome completo
+          <input type="text" name="nome" />
+          <span class="campo-erro" data-erro="nome"></span>
+        </label>
+        <label>E-mail
+          <input type="email" name="email" />
+          <span class="campo-erro" data-erro="email"></span>
+        </label>
+        <label>CPF
+          <input type="text" name="cpf" placeholder="000.000.000-00" maxlength="14" />
+          <span class="campo-erro" data-erro="cpf"></span>
+        </label>
+        <label>Telefone
+          <input type="text" name="telefone" placeholder="(00) 00000-0000" maxlength="15" />
+          <span class="campo-erro" data-erro="telefone"></span>
+        </label>
+        <label>Senha
+          <input type="password" name="senha" />
+          <span class="campo-erro" data-erro="senha"></span>
+        </label>
+        <button class="btn btn--pixel btn--bloco" type="submit">Cadastrar</button>
+      </form>
+      <p class="form-troca">Ja tem conta? <a href="#" id="irParaLogin">Entrar</a></p>
+    </div>
+  </div>
+
+  <!-- ======================= MODAL: CONFIRMACAO (CHECKOUT) ======================= -->
+  <div class="modal oculto" id="modalConfirmacao">
+    <div class="modal__caixa modal__caixa--centro">
+      <button class="modal__fechar" data-fechar>✕</button>
+      <div class="confirmacao">
+        <div class="confirmacao__icone">✔</div>
+        <h2>Pedido Realizado!</h2>
+        <p>Obrigado pela compra. (Esta e uma POC: nenhum pagamento real foi processado.)</p>
+        <div id="resumoPedido" class="resumo-pedido"></div>
+        <button class="btn btn--pixel btn--bloco" data-fechar>Voltar a loja</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notificacao tipo "toast" -->
+  <div class="toast oculto" id="toast"></div>
+
+  <footer class="rodape container">
+    <p>Pixel Vault © 2026 — POC academica. Sem pagamento ou envio reais.</p>
+  </footer>
+
+  <!-- Scripts: ordem importa (validacao -> dados -> modulos -> init) -->
+  <script src="js/validation.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/catalog.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
