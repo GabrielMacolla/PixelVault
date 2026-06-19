@@ -155,5 +155,3 @@ fetch("http://localhost:8080/api/produtos")
 3. Adicione jogos ao carrinho e clique em **Finalizar Compra**.
 
 ---
-
-*POC acadêmica — Engenharia da Computação. Sem fins comerciais. Nomes e títulos de jogos pertencem aos seus respectivos detentores.*

@@ -62,13 +62,10 @@ public class ProdutoController {
             dto.setCapaCor(bundle.getCapaCor());
             dto.setEstoque(bundle.getEstoque() != null ? bundle.getEstoque() : 5);
 
-            // Percorre os jogos do bundle para pegar a plataforma, o ano mais recente e os IDs
             List<Jogo> jogos = bundle.getJogos();
-            List<Long> idsJogos = new ArrayList<>();
             Integer anoMaisRecente = null;
 
             for (Jogo j : jogos) {
-                idsJogos.add(j.getId());
                 if (j.getAno() != null) {
                     if (anoMaisRecente == null || j.getAno() > anoMaisRecente) {
                         anoMaisRecente = j.getAno();
@@ -80,7 +77,6 @@ public class ProdutoController {
                 dto.setPlataforma(jogos.get(0).getPlataforma().getNome());
             }
             dto.setAno(anoMaisRecente);
-            dto.setItens(idsJogos);
 
             produtos.add(dto);
         }

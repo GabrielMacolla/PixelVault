@@ -1,7 +1,6 @@
 package com.pixelvault.dto;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 public class ProdutoDTO {
 
@@ -16,7 +15,6 @@ public class ProdutoDTO {
     private BigDecimal precoPromocional;
     private boolean promocao;
     private String capaCor;
-    private List<Long> itens;
     private Integer estoque;
 
     public Long getId() { return id; }
@@ -41,8 +39,6 @@ public class ProdutoDTO {
     public void setPromocao(boolean promocao) { this.promocao = promocao; }
     public String getCapaCor() { return capaCor; }
     public void setCapaCor(String capaCor) { this.capaCor = capaCor; }
-    public List<Long> getItens() { return itens; }
-    public void setItens(List<Long> itens) { this.itens = itens; }
     public Integer getEstoque() { return estoque; }
     public void setEstoque(Integer estoque) { this.estoque = estoque; }
 }
